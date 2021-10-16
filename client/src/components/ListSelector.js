@@ -8,13 +8,14 @@ import DeleteModal from './DeleteModal'
     
     @author McKilla Gorilla
 */
+
 const ListSelector = () => {
     const { store } = useContext(GlobalStoreContext);
     store.history = useHistory();
 
     useEffect(() => {
         store.loadIdNamePairs();
-    }, []);
+    }, [store]);
 
     let listCard = "";
     if (store) {
@@ -26,6 +27,11 @@ const ListSelector = () => {
             />
         ))
     }
+
+    function addNewList() {
+        store.addNewList()
+    }
+
     return (
         <div id="top5-list-selector">
             <div id="list-selector-heading">
@@ -33,6 +39,7 @@ const ListSelector = () => {
                     type="button"
                     id="add-list-button"
                     className="top5-button"
+                    onClick={addNewList}
                     value="+" />
                 Your Lists
             </div>

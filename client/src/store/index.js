@@ -17,7 +17,8 @@ export const GlobalStoreActionType = {
     CLOSE_CURRENT_LIST: "CLOSE_CURRENT_LIST",
     LOAD_ID_NAME_PAIRS: "LOAD_ID_NAME_PAIRS",
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
-    SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE"
+    SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
+    ADD_NEW_LIST: "ADD_NEW_LIST"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -33,7 +34,8 @@ export const useGlobalStore = () => {
         newListCounter: 0,
         listNameActive: false,
         itemActive: false,
-        listMarkedForDeletion: null
+        listMarkedForDeletion: null,
+        listCounterMarking: true
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -49,7 +51,8 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    listCounterMarking: true
                 });
             }
             // STOP EDITING THE CURRENT LIST
@@ -60,7 +63,8 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    listCounterMarking: true
                 })
             }
             // GET ALL THE LISTS SO WE CAN PRESENT THEM
@@ -71,7 +75,8 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    listCounterMarking: true
                 });
             }
             // UPDATE A LIST
@@ -82,7 +87,8 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    listCounterMarking: true
                 });
             }
             // START EDITING A LIST NAME
@@ -93,9 +99,22 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: true,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: null,
+                    listCounterMarking: true
                 });
             }
+            // START ADDING A NEW LIST
+            // case GlobalStoreActionType.ADD_NEW_LIST: {
+            //     return setStore({
+            //         idNamePairs: store.idNamePairs,
+            //         currentList: null,
+            //         newListCounter: store.newListCounter + 1,
+            //         isListNameEditActive: false,
+            //         isItemEditActive: false,
+            //         listMarkedForDeletion: null,
+            //         listCounterMarking: false
+            //     });
+            // }
             default:
                 return store;
         }
@@ -137,6 +156,25 @@ export const useGlobalStore = () => {
         asyncChangeListName(id);
     }
 
+    //this function adds a new list
+    store.addNewList = function () {
+        async function asyncCreateNewList(){
+            const response = await api.createTop5List({
+                        "name": "untitled",
+                        "items": [
+                            "?",
+                            "?",
+                            "?",
+                            "?",
+                            "?"
+                        ]
+                })
+            console.log(response.data)
+            //storeReducer({type: GlobalStoreActionType.ADD_NEW_LIST,payload: null},()=>store.setCurrentList(response.data.top5List._id));
+        }
+        asyncCreateNewList()
+    }
+
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
     store.closeCurrentList = function () {
         storeReducer({
@@ -148,16 +186,15 @@ export const useGlobalStore = () => {
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
     store.loadIdNamePairs = function () {
         async function asyncLoadIdNamePairs() {
-            const response = await api.getTop5ListPairs();
-            if (response.data.success) {
+            try{
+                const response = await api.getTop5ListPairs();
                 let pairsArray = response.data.idNamePairs;
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
                     payload: pairsArray
                 });
-            }
-            else {
-                console.log("API FAILED TO GET THE LIST PAIRS");
+            }catch(error){
+                console.log(error)
             }
         }
         asyncLoadIdNamePairs();

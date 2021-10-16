@@ -137,7 +137,7 @@ getTop5ListPairs = async (req, res) => {
             }
             return res.status(200).json({ success: true, idNamePairs: pairs })
         }
-    }).catch(err => console.log(err))
+    }).catch(err => console.log("err"))
 }
 
 module.exports = {
