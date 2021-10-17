@@ -14,8 +14,9 @@ const ListSelector = () => {
     store.history = useHistory();
 
     useEffect(() => {
-        store.loadIdNamePairs();
-    }, [store]);
+        store.loadIdNamePairs()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[]); 
 
     let listCard = "";
     if (store) {
