@@ -27,7 +27,9 @@ function DeleteModal() {
         <div
             className={status}
             id="delete-modal"
-            data-animation="slideInOutLeft">
+            data-animation="slideInOutLeft"
+            onBlur={handleCloseModal}
+        >        
             <div className="modal-dialog">
                 <header className="dialog-header">
                     Delete the {name} Top 5 List?

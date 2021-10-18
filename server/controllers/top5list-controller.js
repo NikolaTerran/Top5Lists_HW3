@@ -77,12 +77,12 @@ console.log("updateTop5List: " + JSON.stringify(body));
             })
     })
 }
+//I hate this
 deleteTop5List = async (req, res) => {
-    await Top5List.findOneAndDelete({ _id: req.params.id }, (err, top5List) => {
+    await Top5List.findOneAndDelete({ _id: req.params.id }).then((top5List, err) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
         }
-
         if (!top5List) {
             return res
                 .status(404)

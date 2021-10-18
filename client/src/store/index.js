@@ -387,14 +387,11 @@ export const useGlobalStore = () => {
         async function asyncSetCurrentList(id) {
             try{
                 let response = await api.getTop5ListById(id);
-                let top5List = response.data.top5List;    
-                response = await api.updateTop5ListById(top5List._id, top5List);
-                if (response.data.success) {
-                    storeReducer({
-                        type: GlobalStoreActionType.SET_DELETE_LIST_ACTIVE,
-                        payload: top5List
-                    });
-                }
+                let top5List = response.data.top5List;  
+                storeReducer({
+                    type: GlobalStoreActionType.SET_DELETE_LIST_ACTIVE,
+                    payload: top5List
+                });
             }catch(error){console.log(error)}
         }
         asyncSetCurrentList(idNamePair._id);
@@ -410,15 +407,15 @@ export const useGlobalStore = () => {
 
     //delete list
     store.deleteMarkedList = function () {
-        
         async function deleteCurrentList(id) {
             try{
                 await api.deleteTop5ListById(id);
             }catch(error){console.log(error)}
+            store.loadIdNamePairs()
         }
         deleteCurrentList(store.listMarkedForDeletion._id);
         store.hideDeleteListModal()
-        store.loadIdNamePairs()
+        //store.loadIdNamePairs()
     }
 
 
