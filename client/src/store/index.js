@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react'
+import { createContext, useState, useEffect} from 'react'
 import jsTPS from '../common/jsTPS'
 import api from '../api'
 import MoveItem_Transaction from '../transactions/MoveItem_Transaction'
@@ -22,7 +22,7 @@ export const GlobalStoreActionType = {
     SET_LIST_NAME_EDIT_NON_ACTIVE: "SET_LIST_NAME_EDIT_NON_ACTIVE",
     SET_ITEM_NAME_EDIT_ACTIVE: "SET_ITEM_NAME_EDIT_ACTIVE",
     SET_DELETE_LIST_ACTIVE: "SET_DELETE_LIST_ACTIVE",
-    ADD_NEW_LIST: "ADD_NEW_LIST"
+    ADD_NEW_LIST: "ADD_NEW_LIST",
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -42,6 +42,16 @@ export const useGlobalStore = () => {
         listCounterMarking: true
     });
 
+    let initCounter = 0
+    // if(localStorage.getItem("listCounter")){
+    //     initCounter = parseInt(localStorage.getItem("listCounter"))
+    // }
+    const [listCounterThatActuallyWorked, addCount] = useState(initCounter)
+
+    useEffect(() => {
+        localStorage.setItem("listCounter", listCounterThatActuallyWorked)
+    },[listCounterThatActuallyWorked]);
+
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
     // HANDLE EVERY TYPE OF STATE CHANGE
     const storeReducer = (action) => {
@@ -52,7 +62,7 @@ export const useGlobalStore = () => {
                 return setStore({
                     idNamePairs: payload.idNamePairs,
                     currentList: payload.top5List,
-                    newListCounter: store.newListCounter,
+                    newListCounter: listCounterThatActuallyWorked,
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: null,
@@ -64,7 +74,7 @@ export const useGlobalStore = () => {
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: null,
-                    newListCounter: store.newListCounter,
+                    newListCounter: listCounterThatActuallyWorked,
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: null,
@@ -76,7 +86,7 @@ export const useGlobalStore = () => {
                 return setStore({
                     idNamePairs: payload,
                     currentList: null,
-                    newListCounter: store.newListCounter,
+                    newListCounter: listCounterThatActuallyWorked,
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: null,
@@ -88,7 +98,7 @@ export const useGlobalStore = () => {
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: payload,
-                    newListCounter: store.newListCounter,
+                    newListCounter: listCounterThatActuallyWorked,
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: null,
@@ -100,7 +110,7 @@ export const useGlobalStore = () => {
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: payload,
-                    newListCounter: store.newListCounter,
+                    newListCounter: listCounterThatActuallyWorked,
                     isListNameEditActive: true,
                     isItemEditActive: false,
                     listMarkedForDeletion: null,
@@ -112,7 +122,7 @@ export const useGlobalStore = () => {
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: null,
-                    newListCounter: store.newListCounter,
+                    newListCounter: listCounterThatActuallyWorked,
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: null,
@@ -124,7 +134,7 @@ export const useGlobalStore = () => {
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: store.currentList,
-                    newListCounter: store.newListCounter,
+                    newListCounter: listCounterThatActuallyWorked,
                     isListNameEditActive: false,
                     isItemEditActive: payload,
                     listMarkedForDeletion: null,
@@ -136,25 +146,25 @@ export const useGlobalStore = () => {
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: store.currentList,
-                    newListCounter: store.newListCounter,
+                    newListCounter: listCounterThatActuallyWorked,
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: payload,
                     listCounterMarking: true
                 });
             }
-            // START ADDING A NEW LIST
-            // case GlobalStoreActionType.ADD_NEW_LIST: {
-            //     return setStore({
-            //         idNamePairs: store.idNamePairs,
-            //         currentList: null,
-            //         newListCounter: store.newListCounter + 1,
-            //         isListNameEditActive: false,
-            //         isItemEditActive: false,
-            //         listMarkedForDeletion: null,
-            //         listCounterMarking: false
-            //     });
-            // }
+            //START ADDING A NEW LIST
+            case GlobalStoreActionType.ADD_NEW_LIST: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: null,
+                    newListCounter: listCounterThatActuallyWorked,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null,
+                    listCounterMarking: false
+                });
+            }
             default:
                 return store;
         }
@@ -167,6 +177,7 @@ export const useGlobalStore = () => {
     store.changeListName = function (id, newName) {
         // GET THE LIST
         async function asyncChangeListName(id) {
+            try{
             let response = await api.getTop5ListById(id);
             if (response.data.success) {
                 let top5List = response.data.top5List;
@@ -192,16 +203,19 @@ export const useGlobalStore = () => {
                 }
                 updateList(top5List);
             }
+        }catch(error){
+            console.log(error)
         }
-        asyncChangeListName(id);
+        }
+            asyncChangeListName(id);
     }
 
     //this function adds a new list
     store.addNewList = function () {
-        console.log("h1")
         async function asyncCreateNewList(){
+            try{
             const response = await api.createTop5List({
-                        "name": "untitled",
+                        "name": "Untitled" + store.newListCounter,
                         "items": [
                             "",
                             "",
@@ -210,11 +224,15 @@ export const useGlobalStore = () => {
                             ""
                         ]
                 })
-            console.log(response.data)
-            //storeReducer({type: GlobalStoreActionType.ADD_NEW_LIST,payload: null},()=>store.setCurrentList(response.data.top5List._id));
+            //let newNum = store.newListCounter + 1
+            addCount(listCounterThatActuallyWorked + 1)
+            storeReducer({type: GlobalStoreActionType.ADD_NEW_LIST});
             store.setCurrentList(response.data.top5List._id)
+            }catch(error){
+                console.log(error)
+            }
         }
-        asyncCreateNewList()
+            asyncCreateNewList()
     }
 
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
@@ -223,6 +241,7 @@ export const useGlobalStore = () => {
             type: GlobalStoreActionType.CLOSE_CURRENT_LIST,
             payload: {}
         });
+        tps.clearAllTransactions()
     }
 
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
@@ -236,7 +255,11 @@ export const useGlobalStore = () => {
                     payload: pairsArray
                 });
             }catch(error){
-                console.log(error)
+                console.log("render Nothing")
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: []
+                })
             }
         }
         asyncLoadIdNamePairs();
@@ -248,6 +271,8 @@ export const useGlobalStore = () => {
     // moveItem, updateItem, updateCurrentList, undo, and redo
     store.setCurrentList = function (id) {
         async function asyncSetCurrentList(id) {
+
+            try{
             let response = await api.getTop5ListById(id);
             if (response.data.success) {
                 let top5List = response.data.top5List;
@@ -261,8 +286,13 @@ export const useGlobalStore = () => {
                     store.history.push("/top5list/" + top5List._id);
                 }
             }
+        }catch(error){
+            console.log(error)
         }
-        asyncSetCurrentList(id);
+        }
+        
+            asyncSetCurrentList(id);
+        
     }
     store.addMoveItemTransaction = function (start, end) {
         let transaction = new MoveItem_Transaction(store, start, end);
@@ -322,6 +352,12 @@ export const useGlobalStore = () => {
     store.redo = function () {
         tps.doTransaction();
     }
+    store.hasUndo = function () {
+        return tps.hasTransactionToUndo()
+    }
+    store.hasRedo = function () {
+        return tps.hasTransactionToRedo()
+    }
 
     // THIS FUNCTION ENABLES THE PROCESS OF EDITING A LIST NAME
     store.setIsListNameEditActive = function () {
@@ -374,10 +410,10 @@ export const useGlobalStore = () => {
 
     //delete list
     store.deleteMarkedList = function () {
+        
         async function deleteCurrentList(id) {
             try{
-                let response = await api.deleteTop5ListById(id);
-                console.log(response)
+                await api.deleteTop5ListById(id);
             }catch(error){console.log(error)}
         }
         deleteCurrentList(store.listMarkedForDeletion._id);

@@ -12,6 +12,10 @@ function Workspace() {
     const { store } = useContext(GlobalStoreContext);
     store.history = useHistory();
 
+    if(!store.currentList){
+        store.setCurrentList(store.history.location.pathname.replace("/top5list/",""))
+    }
+
     let editItems = "";
     if (store.currentList) {
         editItems = 

@@ -19,6 +19,7 @@ const ListSelector = () => {
     },[]); 
 
     let listCard = "";
+
     if (store) {
         listCard = store.idNamePairs.map((pair) => (
             <ListCard

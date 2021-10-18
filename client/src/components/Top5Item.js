@@ -62,8 +62,8 @@ function Top5Item(props) {
         }
     }
     function handleBlur(event) {
+        console.log("once")
         if(newText !== "" && newText !== text){
-            store.editItem(index,event.target.value)
             store.addEditItemTransaction(index,text,event.target.value)
             toggleEdit();
         }else{
@@ -74,7 +74,6 @@ function Top5Item(props) {
         event.preventDefault();
         setNewText(event.target.value)
     }
-
 
     let itemStatus = false;
     if (store.isItemEditActive) {
