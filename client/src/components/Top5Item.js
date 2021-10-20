@@ -41,7 +41,11 @@ function Top5Item(props) {
         setDraggedTo(false);
 
         // UPDATE THE LIST
-        store.addMoveItemTransaction(sourceId, targetId);
+        if(sourceId !== targetId){
+            store.addMoveItemTransaction(sourceId, targetId);
+        }else{
+            console.log("Stop dragin' it to itself!")
+        }
     }
 
     function handleToggleEdit(event) {
@@ -62,7 +66,6 @@ function Top5Item(props) {
         }
     }
     function handleBlur(event) {
-        console.log("once")
         if(newText !== "" && newText !== text){
             store.addEditItemTransaction(index,text,event.target.value)
             toggleEdit();
